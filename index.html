@@ -16,8 +16,10 @@
 <script type = "module">
     import {WhiteBoard} from "./whiteboard.js"
     console.log(WhiteBoard);
+
     let el = new WhiteBoard();
     document.getElementById("rel").appendChild(el)
+    el.showTools = false;
     console.log(el);
 </script>
 

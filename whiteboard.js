@@ -342,10 +342,14 @@ export class WhiteBoard extends SvgPlus {
     }
 
 
-    set toolsShown(val) {
-        if (!val != this.isMinimised) {
-            this.minimise();
-        }
+    set showTools(val) {
+        window.requestAnimationFrame(() => {
+            let minHeight = this.minimiseIcon.bbox[1].y
+            this.toolIcons.styles = {
+                "overflow": val ? null:"hidden",
+                height: val ? null:(minHeight) + "px",
+            }
+        })
     }
 
     /** */
