@@ -7,13 +7,34 @@
     <link rel="stylesheet" href="./fonts/Anonymous Pro.css">
 </head>
 <body>
-
+    <div id = "container">
+        <div id = "rel"></div>
+    </div>
 </body>
 <script type = "module">
     import {WhiteBoard} from "./whiteboard.js"
     console.log(WhiteBoard);
     let el = new WhiteBoard();
-    document.body.appendChild(el)
+    document.getElementById("rel").appendChild(el)
     console.log(el);
 </script>
+
+<style>
+    #container {
+        position: fixed;
+        height: 89vh;
+        top: 50%;
+        left: 50%;
+        width: 95vw;
+        transform: translate(-50%, -50%);
+    }
+    #rel {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    white-board {
+        font-size: 2vh;;
+    }
+</style>
 </html>

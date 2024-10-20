@@ -13,6 +13,7 @@ import {ElementChangeEvent } from "./Element/interface.js"
  */
 
 
+
 const ToolsOrder = [
     "pan",
     "select",
@@ -85,7 +86,15 @@ class Minimise extends SvgPlus {
       this.s = 30;
       this.class = "c-icon minimise";
       let svg = this.createChild("svg", {
-          viewBox: "0 0 90 50"
+          viewBox: "0 -50 100 150",
+          content: `<g>
+          <g>
+            <ellipse cx="24.27" cy="21.2" rx="7.79" ry="2.98" transform="translate(-7.88 23.37) rotate(-45)"/>
+            <path d="M72.42,58.34L32.24,18.15c1.16,1.16-.36,4.57-3.4,7.61s-6.45,4.56-7.61,3.4l40.18,40.18c1.16,1.16,4.57-.36,7.61-3.4,3.04-3.04,4.56-6.45,3.4-7.61Z"/>
+            <path d="M64.68,72.15l15,6.29c1.16.49,2.32-.68,1.84-1.84l-6.29-15c.22,1.54-1.23,4.29-3.74,6.8s-5.26,3.96-6.8,3.74Z"/>
+          </g>
+          <rect x="11.96" y="78.56" width="76.08" height="6.14"/>
+        </g>`
       })
    
       this.p1 = svg.createChild("path", {"is-stroke": true, "stroke-width": 9, "stroke-linecap": "round"});
@@ -98,12 +107,13 @@ class Minimise extends SvgPlus {
     }
 
     set t(t) {
+        t = 1 - t;
         let s = this.s
         let d1 = new Vector(s, s);
         let d2 = new Vector(-s, s);
-        let c = new Vector(45, 10);
-        let o1 = c.addH(-(1+t)*s/2)
-        let o2 = c.addH((1+t)*s/2)
+        let c = new Vector(45, -40);
+        let o1 = c.addH(-(t)*s/2)
+        let o2 = c.addH((t)*s/2)
         this.p1.props = {d: `M${o1}l${d1}`}
         this.p2.props = {d: `M${o2}l${d2}`}
     }
@@ -322,6 +332,13 @@ export class WhiteBoard extends SvgPlus {
         }
     }
 
+
+    set toolsShown(val) {
+        if (!val != this.isMinimised) {
+            this.minimise();
+        }
+    }
+
     /** */
     async minimise(){
         if (this._manim) return;
@@ -340,6 +357,10 @@ export class WhiteBoard extends SvgPlus {
                     height: (minHeight * (1-t) + height * t) + "px",
                 }
             }, 300, true)
+            tools.styles = {
+                "overflow": null,
+                height: null,
+            }
             this.isMinimised = false;
         } else {
             this.styleSelection = [];
