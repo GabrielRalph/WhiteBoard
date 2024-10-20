@@ -48,7 +48,6 @@ function getRoot(){
     return a.join("/")
 }
 
-
 let styles = await (await fetch(getRoot() + "/styles.css")).text();
 
 // Create an empty "constructed" stylesheet
@@ -57,7 +56,17 @@ const StyleSheet = new CSSStyleSheet();
 // Apply a rule to the sheet
 StyleSheet.replaceSync(styles);
 
-
+const SS2 = new CSSStyleSheet();
+SS2.replaceSync(`@font-face {
+    font-family: 'Anonymous Pro';
+    src: url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.eot');
+    src: url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.eot?#iefix') format('embedded-opentype'),
+        url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.woff2') format('woff2'),
+        url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.woff') format('woff'),
+        url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.ttf')  format('truetype'),
+        url('https://whiteboard.w4v.es/fonts/Anonymous-Pro.svg#Anonymous Pro') format('svg');
+}`)
+document.adoptedStyleSheets = [SS2]
 let fonts = {
 }
 async function getFontDataURL(fname){
@@ -73,6 +82,7 @@ async function getFontDataURL(fname){
             reader.readAsDataURL(font_blob);
         })
         fonts[fname] = base64;
+
     }
     return fonts[fname]
 }
@@ -939,6 +949,9 @@ export class WhiteBoard extends SvgPlus {
     onKeyDown(e){
         const keycmds = {
             "shift-cmd-z": (e) => {
+                this.redo()
+            },
+            "cmd-y": (e) => {
                 this.redo()
             },
             "cmd-z": (e) => {
