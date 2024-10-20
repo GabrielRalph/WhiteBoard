@@ -491,6 +491,7 @@ class FreeText extends TextShape {
 
     setData(data){
         this.text.value = data.content;
+        this.resize();
     }
 
     get textShape(){
