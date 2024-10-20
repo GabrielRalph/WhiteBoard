@@ -146,6 +146,7 @@ color-controls > .row {
     font-family: 'Anonymous Pro';
     padding: 0;
     line-height: 1em;
+    overflow: hidden;
 }
 
 textarea[readonly] {
