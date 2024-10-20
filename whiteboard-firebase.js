@@ -1,5 +1,5 @@
 import { WhiteBoard } from "./whiteboard.js";
-import { FirebaseFrame } from "http://127.0.0.1:5503/src/Firebase/rtc-signaler.js";
+import { FirebaseFrame } from "https://session-app.squidly.com.au/src/Firebase/rtc-signaler.js";
 import { ElementChangeEvent } from "./Element/interface.js";
 
 
