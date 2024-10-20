@@ -78,13 +78,18 @@ class ViewBox {
   updateSize(){
     let {size, pos, svg} = this;
     let [spos, ssize] = bBoxToVV(svg.getBoundingClientRect())
-    let sr = ssize.dir().mul(size.norm());
-    let ratio = sr.div(size);
-    this.size = sr;
-
-    size = size.mul(this.scale).round(3);
-    let delta = size.mul(ratio.mul(-0.5).add(0.5));
-    this.pos = pos.add(delta);
+    if (!size.isZero) {
+      let sr = ssize.dir().mul(size.norm());
+      let ratio = sr.div(size);
+      this.size = sr;
+  
+      size = size.mul(this.scale).round(3);
+      let delta = size.mul(ratio.mul(-0.5).add(0.5));
+      this.pos = pos.add(delta);
+    } else {
+      this.size = ssize;
+      this.pos = new Vector();
+    }
   }
 
   getScreenBBox() {
@@ -258,19 +263,17 @@ export class SvgView extends SvgPlus {
     constructor(){
       super("svg");
       let viewBox = new ViewBox(this);
-      viewBox.isLocked = () => this.locked;
-      window.requestAnimationFrame(() => {
-          viewBox.displayPixelSize();
-          viewBox.addPanAndZoomEvents(this);
-          viewBox.update = () => {
-            this.render_flag = true;
-            this.styles = {
-              "--scale": viewBox.scale
-            }
-          }
-          this.start_renderer();
-      })
       this.viewBoxX = viewBox;
+      viewBox.isLocked = () => this.locked;
+      viewBox.displayPixelSize();
+      viewBox.addPanAndZoomEvents(this);
+      viewBox.update = () => {
+        this.render_flag = true;
+        this.styles = {
+          "--scale": viewBox.scale
+        }
+      }
+      this.start_renderer();
 
     }
 
@@ -299,37 +302,27 @@ export class SvgView extends SvgPlus {
       return this.viewBoxX.scale;
     }
 
-    start_renderer(){
-      let next = () => {
+    async start_renderer(){
+      let lastSize = this.bbox[1];
+      while (!this.stop_render) {
+        let currentSize = this.bbox[1]
+        if (!currentSize.sub(lastSize).isZero) {
+          this.render_flag = true;
+        }
+        lastSize = currentSize;
+
         if (this.render_flag) {
-          this.render();
           this.viewBoxX.updateSize();
           this.viewBoxX.updateViewBox();
           lastScale = this.scale;
           fixedsSizeElements.forEach(e => e.onScale(this.scale))
           this.render_flag = false;
         }
-        if (!this.stop_render) {
-          window.requestAnimationFrame(next);
-        }
+
+        await new Promise((resolve, reject) => {
+          window.requestAnimationFrame(resolve);
+        })
       }
-      window.requestAnimationFrame(next);
-    }
-  
-    render() {
-    //   this.svg.innerHTML = "";
-    //   let data = this.data;
-    //   let errors = [];
-    //   for (let name in data) {
-    //     let value = data[name];
-    //     let render_method = "render_" + value.type;
-    //     try {
-    //       this[render_method](value, name);
-    //     } catch(e) {
-    //       // console.log(render_method, e);
-    //       errors.push(value);
-    //     }
-    //   }
     }
 }
 
