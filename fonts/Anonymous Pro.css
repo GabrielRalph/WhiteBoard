@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Anonymous Pro';
+    src: url('Anonymous-Pro.eot');
+    src: url('Anonymous-Pro.eot?#iefix') format('embedded-opentype'),
+         url('Anonymous-Pro.woff2') format('woff2'),
+         url('Anonymous-Pro.woff') format('woff'),
+         url('Anonymous-Pro.ttf')  format('truetype'),
+         url('Anonymous-Pro.svg#Anonymous Pro') format('svg');
+}
