@@ -344,11 +344,12 @@ export class WhiteBoard extends SvgPlus {
 
     set showTools(val) {
         window.requestAnimationFrame(() => {
-            let minHeight = this.minimiseIcon.bbox[1].y
+            this.isMinimised = !val;
             this.toolIcons.styles = {
                 "overflow": val ? null:"hidden",
-                height: val ? null:(minHeight) + "px",
+                height: val ? null: `calc(1.5 * var(--icon-size) + 2 * var(--icon-stroke-size))`,
             }
+            this.minimiseIcon.t = val ? 0: 1;
         })
     }
 
@@ -367,7 +368,7 @@ export class WhiteBoard extends SvgPlus {
             await this.waveTransition((t) => {
                 tools.styles = {
                     "overflow": "hidden",
-                    height: (minHeight * (1-t) + height * t) + "px",
+                    height: `calc((1.5 * var(--icon-size) + 2 * var(--icon-stroke-size)) * (${t-1}) + ${height}px * ${t})`,
                 }
             }, 300, true)
             tools.styles = {
@@ -385,7 +386,7 @@ export class WhiteBoard extends SvgPlus {
             await this.waveTransition((t) => {
                 tools.styles = {
                     "overflow": "hidden",
-                    height: (minHeight * (1-t) + height * t) + "px",
+                    height: `calc((1.5 * var(--icon-size) + 2 * var(--icon-stroke-size)) * ${1-t} + ${height}px * ${t})`,
                 }
             }, 300, false)
             this.isMinimised = true;
