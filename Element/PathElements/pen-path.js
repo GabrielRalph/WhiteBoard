@@ -94,7 +94,6 @@ class PenPath extends PathElement {
             this.ewa_smoothing = 0.18;
         }
         this.pFill = sset.fill;
-        console.log(this.isFilled);
         if (this.isFilled) {
             this.path.styles = {
                 "fill": sset.fill

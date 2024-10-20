@@ -98,7 +98,6 @@ export function mousemove(e, wb) {
             selectionBox.coords = [start, end];
 
         // If the mode is a select transform, update it accordingly
-        console.log(mode);
         } else if (wb.isSelection && mode != "wait") {
             let delta = end.sub(start);
             if (mode == "grab") {
@@ -210,7 +209,6 @@ async function makeSelection(end, wb){
             lastLockedSelection = null;
         }
     } else {
-        console.log("here");
         wb.styleSelection = [];
         wb.clearSelection();
     }

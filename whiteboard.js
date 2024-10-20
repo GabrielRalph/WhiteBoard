@@ -57,7 +57,6 @@ const StyleSheet = new CSSStyleSheet();
 // Apply a rule to the sheet
 StyleSheet.replaceSync(styles);
 
-console.log(StyleSheet);
 
 let fonts = {
 }
@@ -670,6 +669,7 @@ export class WhiteBoard extends SvgPlus {
       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
     async lockElement(e){
+        return true;
         // await new Promise((resolve, reject) => {
         //     setTimeout(resolve, 1000*Math.random())
         // })
@@ -684,7 +684,6 @@ export class WhiteBoard extends SvgPlus {
     async lockElements(elements){
         let isLocked = elements.map(e => this.lockElement(e));
         let locked = await Promise.all(isLocked);
-        console.log(locked);
         return elements.filter((e, i) => locked[i])
     }
 
@@ -706,7 +705,6 @@ export class WhiteBoard extends SvgPlus {
     pushChange(change) {
         let reorder = this.applyChange(change);
         if (reorder) this.reOrder();
-        console.log(reorder);
         this.addTheirHistory(change);
     }
    
@@ -854,7 +852,6 @@ export class WhiteBoard extends SvgPlus {
                 break;
 
             case "order":
-                console.log(data);
                 this.getElement(elementId).order = data.order;
                 reOrderFlag = true;
                 break;
@@ -871,17 +868,15 @@ export class WhiteBoard extends SvgPlus {
 
     //  ~~~~~~~~~~~~~~~~~~~~~~ KEYS ~~~~~~~~~~~~~~~~~~~~~~~~ //
     addKeyListeners(){
-        let key_state = {
 
-        }
         let text_mode = false;
         let text_element = null
-        this.addEventListener("editText", async (e) => {
+        this.svgView.addEventListener("editText", async (e) => {
             text_mode = true;
             text_element = e.element;
             this.lockElement(e.element);
         })
-        this.addEventListener("editTextDone", (e) => {
+        this.svgView.addEventListener("editTextDone", (e) => {
             text_mode = false;
             text_element = e.element;
             this.releaseElement(e.element);
