@@ -136,7 +136,7 @@ export class PathElement extends WhiteBoardElementBase {
     }
     set isFilled(bool) {
         this._isFilled = !!bool;
-        if (this.pFill) {
+        if (this.pFill && this.isFilled) {
             this.path.styles = {
                 "fill": this.pFill,
             }
