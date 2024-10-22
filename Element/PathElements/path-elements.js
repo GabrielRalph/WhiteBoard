@@ -23,7 +23,7 @@ export class PathElement extends WhiteBoardElementBase {
                 "stroke-linejoin": "round",
             }
         });
-
+        this.isFilled = false;
         this.trans = [new Vector(), new Vector(1)]
     }
 
