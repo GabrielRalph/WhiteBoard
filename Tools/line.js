@@ -3,12 +3,14 @@ import { toCursor } from "../Utilites/basic-funcs.js";
 // import { PenPath } from "../Shapes/whiteboard-shapes.js";
 
 let styleSet = {
-    "stroke": "rgb(42, 135, 224)",
+    "stroke": "rgb(25, 79, 131)",
     "stroke-width": 3,
     "stroke-opacity": 1,
     "marker-end": null,
     "marker-start": null,
     "dash-style": "solid",
+    "fill": "rgb(48, 154, 255)",
+    "fill-opacity": 1,
 }
 
 

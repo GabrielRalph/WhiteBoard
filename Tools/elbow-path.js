@@ -82,7 +82,6 @@ export function onSelect(wb){
         "arrows",
         "stroke-width",
         "stroke",
-        "fill",
         "dash-style"
     ]
 }

@@ -55,6 +55,7 @@ export class PathElement extends WhiteBoardElementBase {
 
     isInside(point) {
         let isInside = this.path.isVectorInStroke(point);
+        if (!isInside && this.isFilled) isInside = this.path.isVectorInFill(point);
         return isInside;
     }
 
@@ -111,8 +112,35 @@ export class PathElement extends WhiteBoardElementBase {
             "marker-end": `url(#${sset['marker-end']})`,
             "marker-start": `url(#${sset['marker-start']})`,
             "stroke-opacity": sset["stroke-opacity"],
+            "fill-opacity": sset['fill-opacity'],
         }
-        this.dashStyle = sset["dash-style"]
+        this.dashStyle = sset["dash-style"];
+        this.pFill = sset.fill;
+    }
+
+
+    set pFill(pFill){
+        this._pFill = pFill;
+        if (this.isFilled) {
+            this.path.styles = {
+                "fill": pFill
+            }
+        }
+    }
+    get pFill(){
+        return this._pFill;
+    }
+
+    get isFilled(){
+        return this._isFilled;
+    }
+    set isFilled(bool) {
+        this._isFilled = !!bool;
+        if (this.pFill) {
+            this.path.styles = {
+                "fill": this.pFill,
+            }
+        }
     }
 
     getData(){
@@ -120,6 +148,7 @@ export class PathElement extends WhiteBoardElementBase {
         let value = [...dpath].map(cp => cpoint_serialise[cp.cmd_TYPE](cp));
         let d = {
             path: value,
+            filled: this.isFilled
         }
         return d;
     }
@@ -127,6 +156,7 @@ export class PathElement extends WhiteBoardElementBase {
     setData(data){
         let dpath = data.path.map(cmd => `${cmd.shift()}${cmd.join(",")}`).join("");
         this.dPath = dpath;
+        this.isFilled = data.filled;
     }
 
 
@@ -142,5 +172,7 @@ export class PathElement extends WhiteBoardElementBase {
         "marker-end",
         "marker-start",
         "dash-style",
+        "fill",
+        "fill-opacity", 
     ]}
 }

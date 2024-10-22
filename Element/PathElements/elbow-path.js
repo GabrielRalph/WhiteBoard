@@ -169,7 +169,14 @@ class ElbowPath extends PathElement {
     static get name(){
         return "elbow-path"
     }
-
+    static get observedStyles(){ return [
+        "stroke",
+        "stroke-opacity",
+        "stroke-width",
+        "marker-end",
+        "marker-start",
+        "dash-style",
+    ]}
 }
 
 

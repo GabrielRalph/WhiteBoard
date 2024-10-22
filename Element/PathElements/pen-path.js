@@ -29,11 +29,6 @@ class PenPath extends PathElement {
         this.curves = [];
     }
 
-    isInside(point) {
-        let isInside = this.path.isVectorInStroke(point);
-        if (!isInside && this.isFilled) isInside = this.path.isVectorInFill(point);
-        return isInside;
-    }
 
     /** @param {Vector} v */
     addPoint(v) {
@@ -66,69 +61,28 @@ class PenPath extends PathElement {
         if (start.dist(end) < 3 * this.sw) {
             points.push(start);
             this.isFilled = true;
-            this.path.styles = {
-                fill: this.pFill
-            }
         }
 
         // compute the dpath
         let dpath = points2Dpath(points, this.sw/2);
         this.dPath = dpath;
         this.points = [] // no longer needed
-        // setTimeout(() => {
 
         this.dispatchCreationEvent();
-            // this.dispatchDataChange();
-        // }, 50)
-        // this.dispatchCreationEvent();
     }
 
     setStyleSet(sset){
         super.setStyleSet(sset);
-        this.path.props = {
-            "fill-opacity": sset["fill-opacity"]
-        }
         if (sset['marker-end'] || sset['marker-start']) {
             this.ewa_smoothing = 0.1;
         } else {
             this.ewa_smoothing = 0.18;
-        }
-        this.pFill = sset.fill;
-        if (this.isFilled) {
-            this.path.styles = {
-                "fill": sset.fill
-            }
-        }
-    }
-
-    getData(){
-        let d = super.getData();
-        d.filled = this.isFilled == true
-        return d;
-    }
-
-    setData(data){
-        super.setData(data);
-        this.isFilled = data.filled;
-        if (data.filled) {
-            this.path.styles = {fill: this.pFill}
         }
     }
 
     static get name(){
         return "pen-path"
     }
-
-    static get observedStyles(){ return [
-        "stroke",
-        "fill",
-        "stroke-opacity",
-        "fill-opacity",
-        "stroke-width",
-        "marker-end",
-        "dash-style",
-        "marker-start"
-    ]}
 }
 
 

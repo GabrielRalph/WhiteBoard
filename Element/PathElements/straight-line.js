@@ -77,6 +77,18 @@ class StraightLine extends PathElement {
     }
 
     endPath(){
+        let {points} = this;
+        let start = points[0];
+        let end = points[points.length - 1];
+
+        // Check the distance from the start point to the end point
+        // is greater than 3 times the stroke, if so join the ends 
+        // and apply the stroke
+        if (start.dist(end) < 3 * this.sw) {
+            points.push(start);
+            this.isFilled = true;
+        }
+
         this.dispatchCreationEvent();
     }
 
