@@ -55,7 +55,7 @@ class ColorControls extends StyleControl {
     setStyleSet(sset) {
         if (this.name in sset)
             this.color = sset[this.name]
-        if (this.name + "-opacity" in sset)
+        if ((this.name + "-opacity") in sset)
             this.opacity = sset[this.name + "-opacity"]
     }
 

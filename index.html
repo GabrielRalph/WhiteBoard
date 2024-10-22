@@ -10,27 +10,52 @@
 </head>
 <body>
     <div id = "container">
+        <textarea></textarea>
         <div id = "rel"></div>
     </div>
 </body>
 <script type = "module">
     import {WhiteBoard} from "./whiteboard.js"
-    console.log(WhiteBoard);
+
+
+    window.addEventListener("keyup", (e) => {
+        // Check if the active element is an input, textarea, or contenteditable element
+        const activeElement = document.activeElement;
+        const isTyping = activeElement.tagName === 'INPUT' ||
+                        activeElement.tagName === 'TEXTAREA' ||
+                        activeElement.isContentEditable;
+
+        if (isTyping) {
+            console.log("user is typing");
+            e.stopImmediatePropagation()
+        }
+    })
+    window.addEventListener("keydown", (e) => {
+        // Check if the active element is an input, textarea, or contenteditable element
+        const activeElement = document.activeElement;
+        const isTyping = activeElement.tagName === 'INPUT' ||
+                        activeElement.tagName === 'TEXTAREA' ||
+                        activeElement.isContentEditable;
+
+        if (isTyping) {
+            console.log("user is typing");
+            e.stopImmediatePropagation()
+        }
+    })
 
     let el = new WhiteBoard();
     document.getElementById("rel").appendChild(el)
-    // el.showTools = false;
-    console.log(el);
 </script>
 
 <style>
     #container {
         position: fixed;
-        height: 89vh;
-        top: 50%;
-        left: 50%;
-        width: 95vw;
-        transform: translate(-50%, -50%);
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
     }
     #rel {
         position: relative;
@@ -38,7 +63,7 @@
         height: 100%;
     }
     white-board {
-        font-size: 2vh;;
+        font-size: 2vh;
     }
 </style>
 </html>

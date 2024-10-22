@@ -237,7 +237,6 @@ export class ColorPicker extends SvgPlus {
         if (this._lastColor instanceof Element) this._lastColor.selected = null;
         if (icon instanceof Element) {
             let col =255 * ((icon.row / (this.h - 1)) * 0.4);
-            let cf = hslToRgb(icon.hue, 1, 0.5);
             icon.selected = `rgba(${col}, ${col}, ${col}, ${1})`;
             this._lastColor = icon;
 
@@ -270,21 +269,43 @@ export class ColorPicker extends SvgPlus {
             let opacity = 1 - c/(w);
             icon.opacity = opacity;
             icon.onclick = () => {
-                this.opacity = opacity;
-                if (this._lastOpacity) this._lastOpacity.selected= null;
-                let event = new Event("change");
-                this.opacity_i = c;
-                icon.selected = "black";
-                this._lastOpacity = icon;
-                event.color = this.color;
-                this.dispatchEvent(event);
+                this._opacity = opacity;
+                this.dChange(true);
             }
             if (this.opacity_i == c) {
                 icon.selected = "black";
                 this._lastOpacity = icon;
             }
-            
         }
+    }
+
+    set opacity(value){
+        this._opacity = value;
+        this.dChange(false);
+    }
+
+    set _opacity(value) {
+        let {g3, w} = this;
+        
+        value = value > 1 ? 1 : (value < 0 ? 0 : value);
+        this.__opacity = value;
+
+        // unselect last opacity icon if it exists
+        if (this._lastOpacity) this._lastOpacity.selected= null;
+
+        // compute the index of the opacity icon
+        let opacity_i = Math.round(w - value * w);
+        this.opacity_i = opacity_i;
+
+        // select the correct opacity icon if they exist
+        if (g3.children.length > 0) {
+            let icon = g3.children[opacity_i];
+            icon.selected = "black";
+            this._lastOpacity = icon;
+        }
+    }
+    get opacity() {
+        return this.__opacity;
     }
 
     get hues() {
