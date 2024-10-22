@@ -237,7 +237,9 @@ export class WhiteBoardElementBase extends SvgPlus {
 
     get strokeWidth(){
         let sw = parseFloat(this._strokeWidth);
+        let so = parseFloat(this._strokeOpacity);
         if (Number.isNaN(sw)) sw = 0;
+        if (!Number.isNaN(so) && so == 0) sw = 0;
         return sw;
     }
     get sw(){
@@ -275,7 +277,8 @@ export class WhiteBoardElementBase extends SvgPlus {
     }
 
     set styleSet(styleSet) {
-        this._strokeWidth = styleSet["stroke-width"]
+        this._strokeWidth = styleSet["stroke-width"];
+        this._strokeOpacity = styleSet["stroke-opacity"];
         this.setStyleSet(styleSet);
         this._styleSet = {};
         for (let sname of this.observedStyles) this._styleSet[sname] = styleSet[sname];
@@ -283,7 +286,8 @@ export class WhiteBoardElementBase extends SvgPlus {
     get styleSet(){
         let sset = {};
         for (let key in this._styleSet) {
-            if (this._styleSet[key]) {
+            let value = this._styleSet[key]
+            if (value != null && typeof value !== "undefined") {
                 sset[key] = this._styleSet[key];
             }
         }
