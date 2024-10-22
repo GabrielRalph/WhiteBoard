@@ -157,6 +157,7 @@ const BasicShapes = {
         }
 
         fixTransformDelta(){
+            console.log("fixxing");
             this.rcoords = this.transRcoords;
         }
 
@@ -167,7 +168,7 @@ const BasicShapes = {
                 x: nc.x,
                 y: nc.y,
                 width: this.rcoords.width,
-                heigth: this.rcoords.heigth
+                height: this.rcoords.height
             }
             this.props = {
                 x: nc.x,

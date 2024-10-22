@@ -306,6 +306,7 @@ export class SvgView extends SvgPlus {
       let lastSize = this.bbox[1];
       while (!this.stop_render) {
         let currentSize = this.bbox[1]
+
         if (!currentSize.sub(lastSize).isZero) {
           this.render_flag = true;
         }
