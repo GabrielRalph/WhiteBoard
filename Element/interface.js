@@ -227,7 +227,6 @@ export class WhiteBoardElementBase extends SvgPlus {
                 }
             }
         }
-        console.log(this._creationInitialised, change);
         if (this._creationInitialised && change) {
             this.dispatchEvent(new ElementChangeEvent(this.id, "styleSet", this.styleSet, ts))
         }
@@ -301,7 +300,6 @@ export class WhiteBoardElementBase extends SvgPlus {
         } else if (value !== null && typeof value === "object" && typeof value.order === "number") {
             this._order = value.order;
         }
-        console.log(this.order, this);
     }
     get order() {
         return this._order;
