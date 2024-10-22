@@ -349,7 +349,7 @@ export class WhiteBoard extends SvgPlus {
             height: val ? null: `calc(1.5 * var(--icon-size) + 2 * var(--icon-stroke-size))`,
         }
         this.minimiseIcon.t = val ? 0: 1;
-        this.disableCommands
+        this.fullyDisabled = !val;
     }
 
     /** */
@@ -357,7 +357,6 @@ export class WhiteBoard extends SvgPlus {
         if (this._manim) return;
         this._manim = true;
         let tools = this.toolIcons;
-        let minHeight = this.minimiseIcon.bbox[1].y
 
         if (this.isMinimised) {
              let height = tools.scrollHeight;
