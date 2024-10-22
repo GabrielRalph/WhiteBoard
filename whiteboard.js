@@ -206,7 +206,7 @@ export class WhiteBoard extends SvgPlus {
         this._fullyDisabled= val;
     }
     get fullyDisabled(){
-
+        return this._fullyDisabled;
     }
 
     /** If set true prevents user from interacting text
@@ -343,14 +343,13 @@ export class WhiteBoard extends SvgPlus {
 
 
     set showTools(val) {
-        window.requestAnimationFrame(() => {
-            this.isMinimised = !val;
-            this.toolIcons.styles = {
-                "overflow": val ? null:"hidden",
-                height: val ? null: `calc(1.5 * var(--icon-size) + 2 * var(--icon-stroke-size))`,
-            }
-            this.minimiseIcon.t = val ? 0: 1;
-        })
+        this.isMinimised = !val;
+        this.toolIcons.styles = {
+            "overflow": val ? null:"hidden",
+            height: val ? null: `calc(1.5 * var(--icon-size) + 2 * var(--icon-stroke-size))`,
+        }
+        this.minimiseIcon.t = val ? 0: 1;
+        this.disableCommands
     }
 
     /** */
@@ -619,7 +618,7 @@ export class WhiteBoard extends SvgPlus {
     }
 
     copySelection(event) {
-
+        if (this.fullyDisabled) return;
         let setClipboard = (json) => {
             let text = JSON.stringify(json);
             navigator.clipboard.writeText(text)
@@ -643,11 +642,15 @@ export class WhiteBoard extends SvgPlus {
     }
 
     cutSelection(event){
+        if (this.fullyDisabled) return;
+
         this.copySelection(event);
         this.deleteElement(this.selection);
     }
 
     pasteSelection(event) {
+        if (this.fullyDisabled) return;
+
         let text = event.clipboardData.getData("text/plain");
 
         let elements = []
@@ -906,31 +909,35 @@ export class WhiteBoard extends SvgPlus {
         
         window.addEventListener("keydown", (e) => {
             // key_state[e.key] = true;
-            e.keyString = key_string(e);
-            
-            if (!text_mode) {
-                if (this._selectedTool["keydown"] instanceof Function) {
-                    this._selectedTool["keydown"](e, this)
+            if (!this.fullyDisabled) {
+                e.keyString = key_string(e);
+
+                if (!text_mode) {
+                    if (this._selectedTool["keydown"] instanceof Function) {
+                        this._selectedTool["keydown"](e, this)
+                    }
+                    
+                    if (!e.defaultPrevented){
+                        this.onKeyDown(e);
+                    }
+                } else if (e.key == "Escape") {
+                    text_element.text.blur();
                 }
-                
-                if (!e.defaultPrevented){
-                    this.onKeyDown(e);
-                }
-            } else if (e.key == "Escape") {
-                text_element.text.blur();
             }
         })
         
         window.addEventListener("keyup", (e) => {
-            e.keyString = key_string(e);
-
-            if (!text_mode) {
-                if (this._selectedTool["keyup"] instanceof Function) {
-                    this._selectedTool["keyup"](e, this)
-                }
-
-                if (!e.defaultPrevented) {
-                    this.onKeyUp(e)
+            if (!this.fullyDisabled) {
+                e.keyString = key_string(e);
+    
+                if (!text_mode) {
+                    if (this._selectedTool["keyup"] instanceof Function) {
+                        this._selectedTool["keyup"](e, this)
+                    }
+    
+                    if (!e.defaultPrevented) {
+                        this.onKeyUp(e)
+                    }
                 }
             }
         })
