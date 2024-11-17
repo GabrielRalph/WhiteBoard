@@ -1,5 +1,5 @@
 import { WhiteBoard } from "./whiteboard.js";
-import { FirebaseFrame } from "https://session-app.squidly.com.au/src/Firebase/rtc-signaler.js";
+import { FirebaseFrame } from "./Firebase/firebase-frame.js"
 import { ElementChangeEvent } from "./Element/interface.js";
 
 
@@ -63,6 +63,7 @@ class WhiteboardFirebaseFrame extends FirebaseFrame {
                 let createdListener = this.onValue(`${id}/light`, async (light) => {
                     if (light === false) {
                         createdListener();
+                        
                         let cdata = await this.get(id);
                         this._onChange({
                             type: "creation",
@@ -89,6 +90,7 @@ class WhiteboardFirebaseFrame extends FirebaseFrame {
                 await this.set(`${e.id}/locked`, this.uid);
                 return true;
             } catch (e) {
+                console.log(e);
                 return false;
             }
         }

@@ -10,13 +10,15 @@
 </head>
 <body>
     <div id = "container">
-        <textarea></textarea>
         <div id = "rel"></div>
+
+        <img src = "/r1.jpg" id = "constant-ratio" />
     </div>
 </body>
 <script type = "module">
-    import {WhiteBoard} from "./whiteboard.js"
-
+    import {initialise} from "./Firebase/firebase-basic.js"
+    import {WhiteBoard, WhiteboardFirebaseFrame} from "./whiteboard-firebase.js"
+    await initialise()
 
     window.addEventListener("keyup", (e) => {
         // Check if the active element is an input, textarea, or contenteditable element
@@ -44,9 +46,11 @@
     })
 
     let el = new WhiteBoard();
-    el.onElementChangeDB = (e) => {
-        console.log(e);
-    }
+    // el.onElementChangeDB = (e) => {
+    //     console.log(e);
+    // }
+    el.linkToElement(document.getElementById("constant-ratio"))
+    new WhiteboardFirebaseFrame("whiteboard-demo", el);
     document.getElementById("rel").appendChild(el)
 </script>
 
@@ -59,6 +63,13 @@
         right: 0;
         display: flex;
         flex-direction: column;
+    }
+    #constant-ratio {
+        position: absolute;
+        z-index: -1;
+        background-color: yellowgreen;
+        opacity: 0.3;
+        height: 60vmin;
     }
     #rel {
         position: relative;

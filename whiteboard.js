@@ -357,7 +357,8 @@ export class WhiteBoard extends SvgPlus {
         if (this._manim) return;
         this._manim = true;
         let tools = this.toolIcons;
-
+    
+        if (!this.isMinimised) this.svgView.resetView();
         if (this.isMinimised) {
              let height = tools.scrollHeight;
             this.minimiseIcon.setIcon("x")
@@ -368,6 +369,7 @@ export class WhiteBoard extends SvgPlus {
                     "overflow": "hidden",
                     height: `calc((1.5 * var(--icon-size) + 2 * var(--icon-stroke-size)) * (${t-1}) + ${height}px * ${t})`,
                 }
+                
             }, 300, true)
             tools.styles = {
                 "overflow": null,
@@ -1099,6 +1101,11 @@ export class WhiteBoard extends SvgPlus {
         this.addClipboardListeners();
 
         for (let cb of wbListeners) cb(this); //call listeners
+    }
+
+    linkToElement(el) {
+        this.linked_element = true;
+        this.svgView.viewBoxX.linkToElement(el);
     }
 
     //  ~~~~~~~~~~~~~~~~~~~~~~ Screen Shot Method ~~~~~~~~~~~~~~~~~~~~~~~~ //

@@ -145,6 +145,7 @@ export class PathElement extends WhiteBoardElementBase {
 
     getData(){
         let dpath = new DPath(this.dPath);
+        console.log(dpath);
         let value = [...dpath].map(cp => cpoint_serialise[cp.cmd_TYPE](cp));
         let d = {
             path: value,

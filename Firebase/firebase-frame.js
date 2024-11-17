@@ -21,11 +21,16 @@ let appRef = (path) => {
 export class FirebaseFrame {
     constructor(reference) {
         this.appRef = (path) => {
+            console.log(reference);
             let r = ref(reference)
             if (typeof path === "string") r = child(r, path);
             return r;
         }
         this.listeners = new Set();
+    }
+
+    get uid(){
+        return getUID()
     }
 
     logPath() {
@@ -39,7 +44,10 @@ export class FirebaseFrame {
      *                      path is provided then the app's root directory is fetched.
      * @return {Promise<DataValue>} returns a promise that resolves the value in the database.
      */
-    async get(path){ return (await get(this.appRef(path))).val()}
+    async get(path){ 
+        console.log(path);
+        return (await get(this.appRef(path))).val()
+    }
 
 
     /** set, sets a value in the apps database at the path specified.

@@ -37,8 +37,8 @@ class ViewBox {
     this._size = new Vector(1);
     this.svg = svg;
 
-    this.minScale = 0.25;
-    this.maxScale = 4;
+    this.minScale = 1;
+    this.maxScale = 4.5;
 
     let updating = false
     this.update = () => {
@@ -60,12 +60,17 @@ class ViewBox {
     let bbox = this.svg.getBBox();
     return bBoxToVV(bbox);
   }
+
   updateViewBox() {
     let {size, pos, svg} = this;
     let viewBox = "";
 
-    size = size.mul(this.scale).round(3);
-    pos = pos.add(this.offset).round(3);
+    if (!this.linked_element) {
+      size = size.mul(this.scale).round(3);
+      pos = pos.add(this.offset).round(3);
+    } else {
+      this.linked_element.style.setProperty("transform", `translate(${this.offset.x}px, ${this.offset.y}px) scale(${this.scale})`)
+    }
     if (pos && size) viewBox = `${pos.x} ${pos.y} ${size.x} ${size.y}`
     // this.pos = pos;
     // this.size = size;
@@ -75,20 +80,25 @@ class ViewBox {
     }
 
   }
+
   updateSize(){
     let {size, pos, svg} = this;
-    let [spos, ssize] = bBoxToVV(svg.getBoundingClientRect())
-    if (!size.isZero) {
-      let sr = ssize.dir().mul(size.norm());
-      let ratio = sr.div(size);
-      this.size = sr;
-  
-      size = size.mul(this.scale).round(3);
-      let delta = size.mul(ratio.mul(-0.5).add(0.5));
-      this.pos = pos.add(delta);
+    if (this.linked_element) {
+      this.linkToElement(this.linked_element)
     } else {
-      this.size = ssize;
-      this.pos = new Vector();
+      let [spos, ssize] = bBoxToVV(svg.getBoundingClientRect())
+      if (!size.isZero) {
+        let sr = ssize.dir().mul(size.norm());
+        let ratio = sr.div(size);
+        this.size = sr;
+    
+        size = size.mul(this.scale).round(3);
+        let delta = size.mul(ratio.mul(-0.5).add(0.5));
+        this.pos = pos.add(delta);
+      } else {
+        this.size = ssize;
+        this.pos = new Vector();
+      }
     }
   }
 
@@ -108,6 +118,7 @@ class ViewBox {
 
     this.update();
   }
+
   set offset(v) {
     if (v instanceof Vector) {
       this._offset = v;
@@ -137,15 +148,63 @@ class ViewBox {
   displayPixelSize(){
     let [spos, ssize] = this.getScreenBBox();
     this.viewbox = [spos, ssize];
+    console.log("display pixel");
   }
 
+
+  linkToElement(element, sratio = 1000){
+    this.linked_element = element;
+
+    let [pos, size] = bBoxToVV(element.getBoundingClientRect())
+    let maxdim = Math.max(size.x, size.y);
+    if (maxdim == 0) return;
+
+    let norm = size.div(maxdim);
+    let tsize = norm.mul(sratio);
+    let [spos, ssize] = this.getScreenBBox();
+
+    let rsize = ssize.div(size);
+    let rpos = spos.sub(pos).div(size);
+    let vsize = rsize.mul(tsize);
+    let vpos = rpos.mul(tsize);
+
+    this.viewbox = [vpos, vsize];
+  }
+
+  get hasLinkedChanged() {
+    if (!this._last_linked_i) {
+      this._last_linked_i = [new Vector(), new Vector()];
+    }
+    let res = false;
+    if (this.linked_element) {
+      let [lastp, lasts] = this._last_linked_i;
+      let [pos, size] = this.linkedElementViewbox;
+      if (!pos.sub(lastp).isZero || !size.sub(lasts).isZero ) res = true;
+      this._last_linked_i = [pos, size]
+    } 
+    return res;
+  }
 
   set viewbox([pos, size]) {
     this._size = size;
     this._pos = pos;
     this.update();
   }
+
   get viewbox(){return [this.pos, this.size]}
+
+  get transformedViewbox() {
+    let viewbox = this.viewbox;
+    if (this.linked_element) {
+      return viewbox
+    } else {
+      let [pos, size] = this.viewbox;
+      return [pos.add(this.offset), size.mul(this.scale)]
+    }
+  }
+  get linkedElementViewbox(){
+    return bBoxToVV(this.linked_element.getBoundingClientRect())
+  }
 
   get absoluteViewbox() {return [this.pos.add(this.offset), this.size.mul(this.scale)]}
 
@@ -176,43 +235,57 @@ class ViewBox {
   scaleAtPoint(sDelta, screenPoint, e) {
     if (this.isZoomLocked) return
 
-    let [pos, size] = this.viewbox;
-    let offset = this.offset
-    pos = pos.add(offset);
-
-    let scale = this.scale;
+    let {scale, offset} = this;
     sDelta = 1 + sDelta;
     let newScale = sDelta * scale;
+
 
     if (newScale > this.maxScale) newScale = this.maxScale;
     if (newScale < this.minScale) newScale = this.minScale;
 
-    let relP = screenPoint.sub(pos);
-    let delta = relP.sub(relP.mul(newScale/scale));
+    let delta = new Vector();
+    if (this.linked_element) {
+      let spos = new Vector(e);
+      let [pos, size] = this.linkedElementViewbox
+      let relP = spos.sub(pos.add(size.div(2)))
+
+      delta = relP.sub(relP.mul(newScale/scale))
+
+    } else {
+      let [pos, size] = this.transformedViewbox;
+
+      let relP = screenPoint.sub(pos);
+      delta = relP.sub(relP.mul(newScale/scale));
+    }
 
 
     // min scale
-    if (scale + sDelta > 0.05) {
-      this.offset = offset.add(delta);
-      this.scale = newScale;
-    }
+    // if (scale + sDelta > 0.05) {
+    this.offset = offset.add(delta);
+    this.scale = newScale;
+    // }
     e.preventDefault();
 
   }
+
   drag(delta, e) {
     if (this.isPanLocked) return
 
-    let [spos, ssize] = this.getScreenBBox();
-    delta = delta.mul(this.size.div(ssize)).mul(this.scale);
-    this.offset = this.offset.sub(delta);
+    if (this.linked_element) {
+      this.offset = this.offset.add(delta);
+    } else {
+      let [spos, ssize] = this.getScreenBBox();
+      
+      delta = delta.mul(this.size.div(ssize)).mul(this.scale);
+      this.offset = this.offset.sub(delta);
+    }
     e.preventDefault();
   }
+
   screenToSVG(p) {
     p = new Vector(p);
     let [spos, ssize] = this.getScreenBBox();
-    let [vpos, vsize] = this.viewbox;
-    vpos = vpos.add(this.offset);
-    vsize = vsize.mul(this.scale);
+    let [vpos, vsize] = this.transformedViewbox;
     let deltaPercent = p.sub(spos).mul(vsize.div(ssize));
     let pos = vpos.add(deltaPercent);
     return pos;
@@ -270,7 +343,7 @@ export class SvgView extends SvgPlus {
       viewBox.update = () => {
         this.render_flag = true;
         this.styles = {
-          "--scale": viewBox.scale
+          "--scale": this.scale
         }
       }
       this.start_renderer();
@@ -299,7 +372,17 @@ export class SvgView extends SvgPlus {
     }
     
     get scale(){
+      if (this.viewBoxX.linked_element) {
+        return 1/this.viewBoxX.scale;
+      }
       return this.viewBoxX.scale;
+    }
+
+
+    resetView(){
+      this.reset_start = performance.now();
+      this.reset_scale = this.viewBoxX.scale;
+      this.reset_offset = this.viewBoxX.offset;
     }
 
     async start_renderer(){
@@ -310,15 +393,35 @@ export class SvgView extends SvgPlus {
         if (!currentSize.sub(lastSize).isZero) {
           this.render_flag = true;
         }
+        if (this.viewBoxX.hasLinkedChanged) {
+          this.render_flag = true;
+        }
         lastSize = currentSize;
 
-        if (this.render_flag) {
+        
+
+        let reset = false;
+        if (this.reset_start) {
+          reset = true;
+          let dt = (performance.now() - this.reset_start) / 300;
+          if (dt > 1) {
+            dt = 1;
+            this.reset_start = false;
+          } 
+          dt = (1 - Math.cos(dt * Math.PI))/2;
+          this.viewBoxX.scale = dt + (1- dt) * this.reset_scale;
+          this.viewBoxX.offset = this.reset_offset.mul(1 - dt);
+        }
+
+        if (this.render_flag || reset) {
           this.viewBoxX.updateSize();
           this.viewBoxX.updateViewBox();
+
           lastScale = this.scale;
           fixedsSizeElements.forEach(e => e.onScale(this.scale))
           this.render_flag = false;
         }
+        
 
         await new Promise((resolve, reject) => {
           window.requestAnimationFrame(resolve);
